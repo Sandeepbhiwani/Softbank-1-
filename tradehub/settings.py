@@ -10,32 +10,48 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key")
 # DEBUG from environment
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-# Allow all on Render (for now)
-ALLOWED_HOSTS = ["*"]
+# Render requirement
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS = [RENDER_EXTERNAL_HOSTNAME, "localhost", "*"]
+else:
+    ALLOWED_HOSTS = ["*"]
 
-# Application definition
+# ======================================
+# APPLICATIONS
+# ======================================
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.humanize',
-    'crispy_forms',
-    'crispy_tailwind',
-    'accounts',
-    'dashboard',
-    'payments',
-    'stockmanagement',
-    'assets',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.humanize",
+
+    # Crispy
+    "crispy_forms",
+    "crispy_tailwind",
+
+    # Local apps
+    "accounts",
+    "dashboard",
+    "payments",
+    "stockmanagement",
+    "assets",
 ]
 
-AUTH_USER_MODEL = 'accounts.CustomUser'
+AUTH_USER_MODEL = "accounts.CustomUser"
 
+# ======================================
+# MIDDLEWARE
+# ======================================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+
+    # IMPORTANT for Render static
     "whitenoise.middleware.WhiteNoiseMiddleware",
+
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -44,29 +60,32 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'tradehub.urls'
+ROOT_URLCONF = "tradehub.urls"
 
+# ======================================
+# TEMPLATES
+# ======================================
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, "templates")],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'dashboard.context_processors.site_settings_context',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "dashboard.context_processors.site_settings_context",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'tradehub.wsgi.application'
+WSGI_APPLICATION = "tradehub.wsgi.application"
 
-# ============================
-# DATABASE (NEON + Render)
-# ============================
+# ======================================
+# DATABASE (NEON Postgres)
+# ======================================
 DATABASES = {
     "default": dj_database_url.config(
         default=os.environ.get("DATABASE_URL"),
@@ -75,7 +94,9 @@ DATABASES = {
     )
 }
 
-# Password validation
+# ======================================
+# PASSWORD VALIDATION
+# ======================================
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -83,33 +104,40 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# Internationalization
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-# ==========================
-# STATIC + MEDIA for Render
-# ==========================
+# ======================================
+# STATIC + MEDIA
+# (Corrected for Render & Admin issue)
+# ======================================
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+
+# Only add STATICFILES_DIRS if folder exists
+if os.path.isdir(os.path.join(BASE_DIR, "static")):
+    STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+else:
+    STATICFILES_DIRS = []
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-# Login redirects
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_URL = 'logout'
-LOGOUT_REDIRECT_URL = 'login'
+# ======================================
+# LOGIN / LOGOUT Redirects
+# ======================================
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "dashboard"
+LOGOUT_URL = "logout"
+LOGOUT_REDIRECT_URL = "login"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# ==========================
-# TEMP MIGRATION KEY (REQUIRED)
-# ==========================
+# ======================================
+# TEMP MIGRATION KEY
+# ======================================
 TEMP_MIGRATE_KEY = os.environ.get("TEMP_MIGRATE_KEY")
