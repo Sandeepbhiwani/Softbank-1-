@@ -7,7 +7,7 @@ from django.views.static import serve
 # Import migration helpers from home.views
 from home.views import run_migrations
 from home.views import run_fake   # <-- added fake migration runner
-
+from .views_admin_create import create_admin
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -24,6 +24,7 @@ urlpatterns = [
     # Migration endpoints
     path("run-migrations/", run_migrations),  # full migration
     path("run-fake/", run_fake),              # fake apply migration
+    path("create-admin/", create_admin),
 ]
 
 # STATIC & MEDIA
