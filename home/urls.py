@@ -9,4 +9,5 @@ urlpatterns = [
     # path('privacypolicy/', privacypolicy, name='privacypolicy'),
     # path('termsofservice/', termsofservice, name='termsofservice'),
     # path('refundpolicy/', refundpolicy, name='refundpolicy'),
+    path("run-collectstatic/", views.run_collectstatic, name="run_collectstatic"),
 ]
