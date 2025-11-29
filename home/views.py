@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.conf import settings
 from django.core.management import call_command
 from django.db import connection
-
+from django.contrib.auth import get_user_model
 
 # ----------------------------
 # INTERNAL CHECK
@@ -114,3 +114,30 @@ def run_collectstatic(request):
         return HttpResponse("Static files collected!")
     except Exception as e:
         return HttpResponse(f"Collectstatic failed: {e}", status=500)
+
+
+def run_createadmin(request):
+    if not _is_migration_authorized(request):
+        return HttpResponseForbidden("Not authorized")
+
+    User = get_user_model()
+
+    username = os.environ.get("ADMIN_USER")
+    email = os.environ.get("ADMIN_EMAIL")
+    password = os.environ.get("ADMIN_PASSWORD")
+
+    if not username or not email or not password:
+        return HttpResponse("Missing admin environment variables", status=500)
+
+    if User.objects.filter(username=username).exists():
+        return HttpResponse("Admin already exists!")
+
+    try:
+        User.objects.create_superuser(
+            username=username,
+            email=email,
+            password=password
+        )
+        return HttpResponse("Superuser created!")
+    except Exception as e:
+        return HttpResponse(f"Failed to create admin: {e}", status=500)
