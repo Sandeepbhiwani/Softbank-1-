@@ -105,3 +105,12 @@ def run_fake(request):
         return HttpResponse(f"Fake migration failed:<br><br>{exc}", status=500)
 
     return HttpResponse(f"✅ FAKE applied: {app} → {name}", status=200)
+def run_collectstatic(request):
+    if not _is_migration_authorized(request):
+        return HttpResponseForbidden("Not authorized")
+
+    try:
+        call_command("collectstatic", interactive=False, verbosity=1)
+        return HttpResponse("Static files collected!")
+    except Exception as e:
+        return HttpResponse(f"Collectstatic failed: {e}", status=500)
