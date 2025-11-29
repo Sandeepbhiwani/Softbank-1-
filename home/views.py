@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseForbidden
 from django.conf import settings
@@ -5,34 +6,27 @@ from django.core.management import call_command
 from django.db import connection
 from django.contrib.auth import get_user_model
 
+
 # ----------------------------
 # INTERNAL CHECK
 # ----------------------------
 def _is_migration_authorized(request):
-    """
-    Authorize migration only if:
-    - ?key=<TEMP_MIGRATE_KEY> matches the env variable, OR
-    - logged-in user is staff/superuser
-    """
     expected_key = getattr(settings, "TEMP_MIGRATE_KEY", None)
     provided_key = request.GET.get("key")
 
-    # If temp key exists AND matches
+    # Allow via ?key=
     if expected_key and provided_key and provided_key == expected_key:
         return True
 
-    # Admin login allowed
-    if (
-        request.user.is_authenticated
-        and (request.user.is_staff or request.user.is_superuser)
-    ):
+    # Allow logged-in admin
+    if request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser):
         return True
 
     return False
 
 
 # ----------------------------
-# MAIN PAGES
+# MAIN UI PAGES
 # ----------------------------
 def home(request):
     return render(request, "home/home.html")
@@ -57,45 +51,36 @@ def error_404_view(request, exception):
 
 
 # ----------------------------
-# RUN FULL MIGRATIONS SAFELY
+# RUN MIGRATIONS
 # ----------------------------
 def run_migrations(request):
     if not _is_migration_authorized(request):
         return HttpResponseForbidden("Not authorized to run migrations")
 
     try:
-        # Ensure migrations are generated
         call_command("makemigrations", interactive=False, verbosity=0)
-
-        # Apply migrations
         call_command("migrate", interactive=False, verbosity=0)
-
-        # Release DB connection (RAM-safe)
         connection.close()
-
     except Exception as exc:
         return HttpResponse(f"Migration failed:<br><br>{exc}", status=500)
 
-    return HttpResponse("✅ All migrations applied successfully!", status=200)
+    return HttpResponse("✅ All migrations applied successfully!")
 
 
 # ----------------------------
 # FAKE MIGRATION RUNNER
-# fixes conflict errors like:
-# 'column already exists'
 # ----------------------------
 def run_fake(request):
     if not _is_migration_authorized(request):
-        return HttpResponseForbidden("Not authorized to fake migrations")
+        return HttpResponseForbidden("Not authorized")
 
     app = request.GET.get("app")
     name = request.GET.get("name")
 
     if not app or not name:
         return HttpResponse(
-            "Missing parameters:<br><br>"
-            "Use format:<br>"
-            "/run-fake/?key=YOUR_KEY&app=APP_NAME&name=MIGRATION_FILE_NAME"
+            "Missing parameters:<br>"
+            "?key=KEY&app=APPNAME&name=MIGRATION_NAME"
         )
 
     try:
@@ -104,18 +89,26 @@ def run_fake(request):
     except Exception as exc:
         return HttpResponse(f"Fake migration failed:<br><br>{exc}", status=500)
 
-    return HttpResponse(f"✅ FAKE applied: {app} → {name}", status=200)
+    return HttpResponse(f"✅ FAKE migration applied: {app} → {name}")
+
+
+# ----------------------------
+# COLLECT STATIC
+# ----------------------------
 def run_collectstatic(request):
     if not _is_migration_authorized(request):
         return HttpResponseForbidden("Not authorized")
 
     try:
         call_command("collectstatic", interactive=False, verbosity=1)
-        return HttpResponse("Static files collected!")
+        return HttpResponse("✅ Static files collected!")
     except Exception as e:
-        return HttpResponse(f"Collectstatic failed: {e}", status=500)
+        return HttpResponse(f"Collectstatic failed:<br><br>{e}", status=500)
 
 
+# ----------------------------
+# CREATE SUPERUSER
+# ----------------------------
 def run_createadmin(request):
     if not _is_migration_authorized(request):
         return HttpResponseForbidden("Not authorized")
@@ -127,7 +120,7 @@ def run_createadmin(request):
     password = os.environ.get("ADMIN_PASSWORD")
 
     if not username or not email or not password:
-        return HttpResponse("Missing admin environment variables", status=500)
+        return HttpResponse("Missing environment variables", status=500)
 
     if User.objects.filter(username=username).exists():
         return HttpResponse("Admin already exists!")
@@ -138,6 +131,6 @@ def run_createadmin(request):
             email=email,
             password=password
         )
-        return HttpResponse("Superuser created!")
+        return HttpResponse("✅ Superuser created!")
     except Exception as e:
-        return HttpResponse(f"Failed to create admin: {e}", status=500)
+        return HttpResponse(f"Failed to create admin:<br><br>{e}", status=500)
