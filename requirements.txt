@@ -3,7 +3,8 @@ Django>=5.2,<6.0
 
 # Forms and styles
 django-crispy-forms>=2.0
-crispy-tailwind==1.0.3
+# crispy-tailwind 2.x is not available – use the latest 1.x series that works with this project
+crispy-tailwind>=1.0.3,<2.0
 
 # HTTP calls
 requests>=2.30.0
