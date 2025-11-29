@@ -1,14 +1,19 @@
 from django.urls import path
-from .views import *
+from . import views
 
 urlpatterns = [
-    path('', home, name='home'),
-    path('contact/', contactus, name='contactus'),
-    path('run-migrations/', run_migrations, name='run-migrations'),
-    # path('aboutus/', aboutus, name='aboutus'),
-    # path('privacypolicy/', privacypolicy, name='privacypolicy'),
-    # path('termsofservice/', termsofservice, name='termsofservice'),
-    # path('refundpolicy/', refundpolicy, name='refundpolicy'),
-    path("run-collectstatic/", views.run_collectstatic, name="run_collectstatic"),
-    path("run-createadmin/", views.run_createadmin, name="run_createadmin"),
+    path('', views.home, name='home'),
+    path('contact/', views.contactus, name='contactus'),
+
+    # Migration utilities
+    path('run-migrations/', views.run_migrations, name='run-migrations'),
+    path('run-collectstatic/', views.run_collectstatic, name='run_collectstatic'),
+    path('run-createadmin/', views.run_createadmin, name='run_createadmin'),
+    path('run-fake/', views.run_fake, name='run_fake'),
+
+    # Optional pages (uncomment if needed)
+    # path('aboutus/', views.aboutus, name='aboutus'),
+    # path('privacypolicy/', views.privacypolicy, name='privacypolicy'),
+    # path('termsofservice/', views.termsofservice, name='termsofservice'),
+    # path('refundpolicy/', views.refundpolicy, name='refundpolicy'),
 ]
