@@ -4,8 +4,7 @@ Django>=5.2,<6.0
 
 # Forms and styles
 django-crispy-forms>=2.0
-crispy-tailwind>=2.0
-
+crispy-tailwind==1.0.3
 # HTTP calls
 requests>=2.30.0
 
@@ -28,4 +27,4 @@ pytest>=7.0.0
 # If your project evolves to use REST or async APIs, add djangorestframework or channels
 # djangorestframework>=3.14.0
 # channels>=4.0.0
-crispy-tailwind>=2.0
+
