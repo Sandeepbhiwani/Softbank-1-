@@ -35,7 +35,7 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # REQUIRED for Render
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -65,7 +65,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'tradehub.wsgi.application'
 
 # ============================
-# DATABASE (REQUIRED FOR RENDER)
+# DATABASE (NEON + Render)
 # ============================
 DATABASES = {
     "default": dj_database_url.config(
@@ -108,3 +108,8 @@ LOGOUT_URL = 'logout'
 LOGOUT_REDIRECT_URL = 'login'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# ==========================
+# TEMP MIGRATION KEY (REQUIRED)
+# ==========================
+TEMP_MIGRATE_KEY = os.environ.get("TEMP_MIGRATE_KEY")
