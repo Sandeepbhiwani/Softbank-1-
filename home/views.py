@@ -10,6 +10,8 @@ from django.contrib.auth import get_user_model
 # =====================================================
 # INTERNAL AUTH CHECK
 # =====================================================
+def create_admin_pg(request):
+    return HttpResponse("This function exists now but is not implemented.")
 def _is_migration_authorized(request):
     """
     Allows execution only if:
