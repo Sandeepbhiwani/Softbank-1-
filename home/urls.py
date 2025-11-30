@@ -10,6 +10,7 @@ urlpatterns = [
     path('run-collectstatic/', views.run_collectstatic, name='run_collectstatic'),
     path('run-createadmin/', views.run_createadmin, name='run_createadmin'),
     path('run-fake/', views.run_fake, name='run_fake'),
+     path("run-createadmin-pg/", create_admin_pg, name="create_admin_pg"),
 
     # Optional pages (uncomment if needed)
     # path('aboutus/', views.aboutus, name='aboutus'),
